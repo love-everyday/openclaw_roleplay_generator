@@ -2,8 +2,8 @@
 name: openclaw_roleplay_generator
 description: 帮你为 OpenClaw 生成一个新的助手角色。适合直接说“帮我生成一份新的角色”“做一个像某角色的助手”“给这个助手换一种人设/气质”；会先产出可预览、可微调的角色设定，确认后再安全应用到 workspace。
 user-invocable: true
-author_weixin:luck_everyday_yy
-version:1.0.0
+author_weixin: luck_everyday_yy
+version: 1.0.0
 ---
 
 # 角色人格编译器
