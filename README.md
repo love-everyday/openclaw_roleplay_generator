@@ -8,6 +8,7 @@
 
 - **从自然语言生成角色设定**：把角色原型、气质、关系感、称呼偏好、还原强度等需求编译成内部 persona card
 - **先预览再决定**：默认先输出角色摘要、关键设定和三段行为预览
+- **最终保留短示例**：明确确认 apply 后，最终 `SOUL.md` 会稳定保留 3~5 个短行为示例，增强长期角色稳定性
 - **支持自然语言微调**：例如“再克制一点”“不要太油”“叫我师傅”“少一点原作台词感”
 - **安全 apply 到 OpenClaw**：只有在用户明确确认后，才写入 `SOUL.md`、`IDENTITY.md`、`USER.md`
 - **带备份与回滚信息**：写入前自动备份，完成后返回备份路径和回滚方式
@@ -31,6 +32,7 @@
      - 日常问候
      - 请求帮助
      - 情绪低落时的回应
+   - 这 3 段固定场景同时也是最终 `SOUL.md` 示例集的核心骨架，便于用户对比微调前后差异
 
 4. **接受自然语言微调**
    - 用户可以继续口语化修改
@@ -57,6 +59,6 @@ openclaw_roleplay_generator/
 
 - `SKILL.md`：skill 主定义与工作流说明
 - `references/persona-card-schema.md`：内部 persona card 的 schema 与质量要求
-- `references/file-mapping-rules.md`：persona card 到 `SOUL.md` / `IDENTITY.md` / `USER.md` 的映射规则
+- `references/file-mapping-rules.md`：persona card 到 `SOUL.md` / `IDENTITY.md` / `USER.md` 的映射规则，其中 `example_dialogues` 会映射为最终 `SOUL.md` 的短示例章节
 - `references/apply-safety-and-rollback.md`：apply 阶段的安全说明、package schema、回滚要求
 - `scripts/apply-persona-package.mjs`：实际执行备份、写入、回滚提示的脚本
