@@ -1,31 +1,29 @@
 # openclaw_roleplay_creator
 
-一个面向 OpenClaw 的新并行角色人格 skill。
+一个面向 OpenClaw 的角色人格生成 skill。
 
-它不再把重点放在“大而全的人设说明书”，而是把生成主轴收束为 **强角色 / 强关系 / 强反应**。
-目标不是做“有角色味的通用助手”，而是做一个更像真人伙伴、能长期在场、做事时也不轻易掉角色的人格包。
+它的目标不是产出一份“大而全的人设说明书”，而是把用户想要的角色陪伴感，收束成一个更可运行的人格包：**角色要立得住，关系要站得稳，反应要像同一个人。**
 
-## 这版和旧版的关系
+最终效果应当更接近“一个能长期在场、能自然互动、做事时也不轻易掉角色的真人伙伴”，而不是“有一点角色味的通用助手”。
 
-这是与 `openclaw_roleplay_generator` 并行的新 skill，不直接覆盖旧 skill。
-第一阶段保留双轨：
+## 这个 skill 是做什么的
 
-- 旧 skill：`character-persona-compiler`
-- 新 skill：`openclaw-roleplay-creator`
+`openclaw_roleplay_creator` 用来把这类需求编译成可预览、可微调、可安全应用的人格配置：
 
-这样可以：
+- “帮我做一个像某角色那样陪我的人”
+- “别太像客服，要更像真人伙伴”
+- “更护短一点，但不要太黏”
+- “做事利落些，但别丢掉陪伴感”
 
-- 做 A/B 对照
-- 验证简化后的 R3 结构是否真的更强
-- 不影响旧安装链路和现有用户习惯
+它默认会先给预览，让用户直接判断像不像、顺不顺、想不想和这个人待着；不对就继续用自然语言改，而不是要求用户改字段或写 schema。
 
-## 新版核心思路
+## 核心思路
 
-新版内部不再以大而全 persona card 为主脑，而是先编译一个更瘦的 R3 IR：
+这个 skill 的生成主轴固定为 **R3**：
 
 - **Role**：这个人到底是谁，强身份是什么
-- **Relationship**：他和用户到底是什么关系，为什么会留下
-- **Reaction**：高频场景下他通常怎么开口、怎么站队、怎么陪、怎么一起处理事
+- **Relationship**：他和用户是什么关系，为什么会留下
+- **Reaction**：高频场景下，他通常怎么开口、怎么站队、怎么陪、怎么一起处理事
 
 额外只保留少量必要护栏：
 
@@ -35,10 +33,17 @@
 - 反模板约束
 - 安全柔化
 
+重点不是把设定写得多满，而是让角色在以下几件事上稳定成立：
+
+- 没任务时，也像同一个人在场
+- 用户低落时，不会立刻滑成建议生成器
+- 一起做事时，能协作，但不掉角色
+- 用户一句“收一点”或“别太教育我”，就能稳定修正
+
 ## 默认工作流
 
 1. **短启动说明**
-   - 只校准预期，不大段讲 companion-first 术语
+   - 只用通俗的话校准预期，不堆 companion-first 术语
 2. **抽取 5 个核心信息**
    - 想要谁
    - 关系是什么
@@ -46,17 +51,17 @@
    - 更克制还是更主动
    - 做事时更保留陪伴感还是更利落
 3. **编译 R3 IR**
-   - 先做强身份锁定，再写关系脚本和高频反应
+   - 先锁角色身份，再写关系站位和高频反应
 4. **先给预览**
    - 默认给“3 轴 + 4 场景”预览，不先倒结构化卡片
 5. **接受自然语言微调**
    - 例如“更护短一点”“少一点教育感”“收一点”“改称呼”
 6. **明确确认后再 apply**
-   - 继续复用成熟的备份 / 回滚 / USER block 写入链路
+   - 只在用户明确同意后，才写入 OpenClaw workspace
 
 ## 预览重点
 
-默认预览不再强调“字段齐不齐”，而是强调：
+默认预览强调的不是“字段齐不齐”，而是下面这几件事：
 
 - 像不像这个人
 - 和用户的关系有没有站位
@@ -70,13 +75,13 @@
 - `vulnerable_moment`
 - `collaborative_help`
 
-可选再补 0~1 个角色招牌场景。
+可按角色特性再补 0~1 个招牌场景。
 
-## 最终文件策略
+## 最终输出文件
 
 ### `SOUL.md`
 
-由 R3 IR 驱动渲染，但最终只保留 6 个关键章节：
+由 R3 IR 驱动渲染，最终只保留 6 个关键章节：
 
 1. 核心身份
 2. 对用户的关系
@@ -87,7 +92,7 @@
 
 ### `IDENTITY.md`
 
-继续沿用 OpenClaw 常见轻量身份结构：
+继续使用轻量身份信息：
 
 - Name
 - Creature
@@ -106,22 +111,18 @@
 
 不会把角色主体写进 `USER.md`。
 
-## Apply 兼容策略
+## Apply 策略
 
-新 skill 继续复用旧版成熟 apply 基础设施：
+这个 skill 在 apply 阶段会复用现有的安全写入链路，目标是兼容 OpenClaw 的 workspace bootstrap 文件。
 
-- package schema 继续使用 **v1**
+执行特点：
+
+- package schema 继续使用 `v1`
 - `USER.md` 继续使用 managed block 策略
-- 第一阶段继续保留旧 marker：
-  - `<!-- character-persona-compiler:start -->`
-  - `<!-- character-persona-compiler:end -->`
-- apply 脚本直接复用旧版 `apply-persona-package.mjs`
-
-这样可以避免：
-
-- 新旧 block 并存
-- 破坏已有 workspace
-- 为了切换生成思路而重写写入链路
+- `SOUL.md` / `IDENTITY.md` 采用整文件覆盖
+- `USER.md` 只处理 managed block；没有该区块就跳过自动写入
+- 写入前会先备份
+- 写入后建议开一个新 session 体验最终效果
 
 ## 目录结构
 
@@ -145,18 +146,14 @@ skills/openclaw_roleplay_creator/
 - **安装目录**：`~/.openclaw/workspace/skills/openclaw-roleplay-creator`
 - **SKILL frontmatter name**：`openclaw-roleplay-creator`
 
-旧版 `character-persona-compiler` 不受影响，可继续并行存在。
-
 ## 关键文件
 
-- `skill/SKILL.md`：新 workflow 与生成优先级
-- `skill/references/role-relationship-reaction-ir.md`：R3 内部 IR
-- `skill/references/preview-and-revision-rules.md`：默认预览和自然语言修订规则
+- `skill/SKILL.md`：主工作流、生成优先级、输出约束
+- `skill/references/role-relationship-reaction-ir.md`：R3 内部 IR 结构
+- `skill/references/preview-and-revision-rules.md`：默认预览与自然语言修订规则
 - `skill/references/file-mapping-rules.md`：R3 IR 到 `SOUL.md` / `IDENTITY.md` / `USER.md` 的映射规则
 - `skill/references/apply-safety-and-rollback.md`：apply 说明、package schema、回滚要求
-- `skill/scripts/apply-persona-package.mjs`：复用旧版成熟 apply 脚本
-- `scripts/install-openclaw-roleplay-creator-skill.sh`：安装新 skill
-- `scripts/test-openclaw-roleplay-creator-skill.sh`：做安装检查和 R3 smoke test 提示
+- `skill/scripts/apply-persona-package.mjs`：安全 apply 脚本
 
 ## 验收重点
 
